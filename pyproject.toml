@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "nonebot-plugin-cogvideox.git"
+name = "nonebot-plugin-cogvideox"
 version = "0.1.0"
 description = "A nonebot plugin for cogvideox"
 authors = ["Alpaca <alpaca@alpaca.kim>"]

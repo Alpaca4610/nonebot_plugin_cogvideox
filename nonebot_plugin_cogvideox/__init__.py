@@ -18,7 +18,7 @@ from .config import Config, ConfigError
 
 __plugin_meta__ = PluginMetadata(
     name="基于清影的AI视频生成",
-    description="基于清影的cogvideox的AI视频生成，支持文生视频和图文生视频",
+    description="基于智谱清言清影cogvideox模型的AI视频生成nonebot插件，支持文生视频和图文生视频",
     usage="""
     AI视频 文字提示词(图片)
     """,
