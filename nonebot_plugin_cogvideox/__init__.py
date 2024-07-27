@@ -2,7 +2,7 @@ import asyncio
 import time
 import nonebot
 
-from nonebot import on_command
+from nonebot import on_command,get_plugin_config
 from nonebot.params import CommandArg
 from nonebot.log import logger
 from nonebot.adapters.onebot.v11 import (
@@ -30,7 +30,7 @@ __plugin_meta__ = PluginMetadata(
 )
 
 
-plugin_config = Config.parse_obj(nonebot.get_driver().config.dict())
+plugin_config = get_plugin_config(Config)
 
 if not plugin_config.zhipu_key:
     raise ConfigError("请配置AI视频生成的KEY")
