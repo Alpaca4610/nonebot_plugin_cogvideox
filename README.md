@@ -11,6 +11,7 @@
 
 # 介绍
 - 本插件适配智谱清言的cogvideox视频生成模型API，具有文字生成视频和图文生成视频的功能。
+- 使用cogvideox-flash模型免费
 # 安装
 
 * 手动安装
@@ -34,6 +35,12 @@
 
 ```
 zhipu_key = ""  # （必填）智谱清言清影API KEY
+
+
+video_model: str = "cogvideox-flash" # （可选）视频模型，cogvideox-flash免费
+video_quality: str = "quality"  # （可选）输出模式，"quality"为质量优先，"speed"为速度优先
+video_size: str = "1920x1080"  # （可选）视频分辨率，支持最高4K（如: "3840x2160"）
+video_fps : str = 30  # （可选）帧率，可选为30或60
 ```
 [API KEY获取地址](https://open.bigmodel.cn/usercenter/apikeys)
 # 效果

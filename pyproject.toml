@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot-plugin-cogvideox"
-version = "0.1.3"
+version = "0.1.4"
 description = "A nonebot plugin for cogvideox"
 authors = ["Alpaca <alpaca@alpaca.kim>"]
 license = "MIT"
@@ -10,7 +10,7 @@ readme = "README.md"
 python = "^3.8"
 nonebot2 = "^2.2.0"
 nonebot-adapter-onebot = "^2.2.1"
-zhipuai = "^2.1.4.20230731"
+zhipuai = "^2.1.5.20250421"
 
 [[tool.poetry.source]]
 name = "tsinghua"

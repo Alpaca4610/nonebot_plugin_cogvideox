@@ -1,6 +1,7 @@
 import asyncio
 import time
-import nonebot
+import httpx
+import base64
 
 from nonebot import on_command,get_plugin_config
 from nonebot.params import CommandArg
@@ -9,7 +10,6 @@ from nonebot.adapters.onebot.v11 import (
     Message,
     MessageSegment,
     MessageEvent,
-    helpers
 )
 
 from zhipuai import ZhipuAI
@@ -29,6 +29,39 @@ __plugin_meta__ = PluginMetadata(
     supported_adapters={"~onebot.v11"},
 )
 
+async def url_to_base64(image_url: str):
+    """将图片URL转换为Base64编码"""
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.get(image_url)
+            response.raise_for_status()
+            image_data = response.content
+            return base64.b64encode(image_data).decode('utf-8')
+    except Exception as e:
+        logger.error(f"图片下载失败: {e}")
+        return None
+
+async def auto_get_url(event: MessageEvent):
+    reply = event.reply
+    file_list = []
+    if reply:
+        for segment in reply.message:
+            msg_type = segment.type
+            msg_data = segment.data
+            if msg_type in ["image"]:
+                url = msg_data.get("url") or msg_data.get(
+                    "file_url"
+                )
+                file_list.append(url)
+            else:
+                return None
+    else:
+        for segment in event.message:
+            if segment.type == "image":
+                img_data = segment.data
+                url = img_data.get("url") or img_data.get("file_url")
+                file_list.append(url)
+    return file_list[0]
 
 plugin_config = get_plugin_config(Config)
 
@@ -36,12 +69,21 @@ if not plugin_config.zhipu_key:
     raise ConfigError("请配置AI视频生成的KEY")
 api_key = plugin_config.zhipu_key
 client = ZhipuAI(api_key=api_key)
-model = "cogvideox"
+
+model = plugin_config.video_model
+quality = plugin_config.video_quality
+size = plugin_config.video_size
+fps = plugin_config.video_fps
 
 
 def create_video_task(client, model, prompt, image_url):
     response = client.videos.generations(
-        model=model, prompt=prompt, image_url=image_url
+    model=model, prompt=prompt,
+    image_url=image_url,
+    quality=quality,
+    with_audio=True,
+    size=size,
+    fps=fps, 
     )
     return response
 
@@ -82,16 +124,15 @@ genvid = on_command("AI视频", block=False, priority=1)
 
 @genvid.handle()
 async def _(event: MessageEvent, msg: Message = CommandArg()):
-    content = msg.extract_plain_text()
-    img_url = helpers.extract_image_urls(event.message)
+    content = msg.extract_plain_text().strip()
+    file = await auto_get_url(event)
     if content == "" or content is None:
         await genvid.finish(MessageSegment.text("内容不能为空！"), at_sender=True)
-    if not img_url:
-        img_url = [None]
     await genvid.send(MessageSegment.text("清影正在生成视频中......"), at_sender=True)
     try:
         loop = asyncio.get_event_loop()
-        flag, res = await loop.run_in_executor(None, text_to_vid, content, img_url[0])
+        image_data = await url_to_base64(file) if file else None
+        flag, res = await loop.run_in_executor(None, text_to_vid, content, image_data)
     except Exception as error:
         await genvid.finish(str(error), at_sender=True)
     if flag:
